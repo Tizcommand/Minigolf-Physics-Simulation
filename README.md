@@ -1,2 +1,6 @@
 # Minigolf Physics Simulation
- Simulates the physics of a ball being launched of spring in 2D.
+This minigolf physics simulation allows you to play minigolf by launching a ball of a spring, into a hole.
+The movement of the ball is simulated using realistic physics.
+
+Thanks to Dr.-Ing. Volkmar Naumburger for teaching me the physics, mathematics and logic behind this project.
+You can find his website on game physics [here](https://advanced-games-physics.goip.de/Inhalt.html).
