@@ -65,7 +65,7 @@ let state = STATE_SPRING_ATTACHED;
 function getDeltaInSec() {
     let deltaInSec = deltaTime * 0.001;
 
-    if(deltaInSec > 1) {
+    if(deltaInSec > 0.1) {
         return 0;
     } else {
         return deltaInSec;
