@@ -269,7 +269,8 @@ class Ball {
         } else {
             // add corrected air acceleration
             this.airAcceleration = this.getAirAcceleration(this.correctionDeltaSum);
-            this.addReflectionAcceleration(this.airAcceleration);
+            let segmentVertical = collisionObject.type === TERRAIN_SEGMENT && collisionObject.direction.x === 0;
+            this.addReflectionAcceleration(this.airAcceleration, segmentVertical);
 
             // position ball
             this.body.position.add(p5.Vector.mult(this.velocity, this.correctionDeltaSum));
@@ -395,7 +396,7 @@ class Ball {
 
             // add air acceleration
             let airAcc = this.getAirAcceleration(correctionDelta);
-            this.addReflectionAcceleration(airAcc);
+            this.addReflectionAcceleration(airAcc, this.groundSegment.direction.x === 0);
 
             // correct ball position
             this.body.position.add(p5.Vector.mult(this.velocity, correctionDelta));
@@ -406,7 +407,7 @@ class Ball {
     }
 
     /**
-     * Speeds up this ball after it was reflected of terrain.
+     * Speeds up this ball after it was reflected off terrain.
      *
      * If this ball's horizontal/vertical velocity is smaller than the horizontal/vertical reflection acceleration,
      * this ball will not be speeded up horizontal/vertical to prevent the ball from getting stuck in the terrain
@@ -414,14 +415,18 @@ class Ball {
      *
      * @param {p5.Vector} reflectionAcceleration
      * How much this ball is speeded up horizontally and vertically.
+     *
+     * @param {boolean} segmentVertical
+     * If this ball is reflected through a completely vertical terrain segment. Allows vertical acceleration to be
+     * added even if the ball's vertical velocity is smaller than the vertical reflection acceleration.
      */
-    addReflectionAcceleration(reflectionAcceleration) {
+    addReflectionAcceleration(reflectionAcceleration, segmentVertical) {
         let xOk = abs(reflectionAcceleration.x) < abs(this.velocity.x);
         let yOk = abs(reflectionAcceleration.y) < abs(this.velocity.y);
 
-        if(xOk && yOk ) {
+        if(xOk && yOk) {
             this.velocity.add(reflectionAcceleration);
-        } else if(yOk) {
+        } else if(yOk || segmentVertical) {
             this.velocity.x = 0;
             this.velocity.y += reflectionAcceleration.y;
         } else if(xOk) {

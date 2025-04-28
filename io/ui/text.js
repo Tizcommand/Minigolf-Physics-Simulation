@@ -28,14 +28,14 @@ let fpsRefreshTimer = 0;
 
 /**
  * @returns {string}
- * A string containing information about the current fps, wind speed and tries. Additionally, prints the golf ball's
- * speed and position when debug mode is activated.
+ * A string containing information about the current fps, wind speed and tries.
+ * Adds the golf ball's speed and position to the string when debug mode is activated.
  *
  * @see DEBUG
  */
 function getInfoText() {
     let infoText = (
-        "FPS: " + fps + " " +
+        "FPS: " + fps +
         "\nWind Speed: " + abs(windVelocity.x).toFixed(2) + "㎧" +
         "\nSuccessful Tries: " + successfulTries + "/" + tries
     );
@@ -114,7 +114,7 @@ function drawString(
 }
 
 /**
- * Draws the simulations title and the info text to the canvas.
+ * Draws the simulation's title and the info text to the canvas.
  *
  * @see getInfoText
  */
