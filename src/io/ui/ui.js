@@ -1,35 +1,36 @@
 /**
- * Provides functions for initializing, updating and drawing various text, buttons and sliders.
+ * Provides functions for initializing, updating and drawing various text, {@link Button}s and {@link Slider}s.
+ * @author Tizian Kirchner
  */
 
 /* buttons */
 
 /**
- * @type {boolean}
- */
-let showPhysicsSettings = false;
-
-/**
+ * Calls the {@link newTry} function.
  * @type {Button}
  */
 let newButton;
 
 /**
+ * Calls the {@link resetGame} function.
  * @type {Button}
  */
 let resetButton;
 
 /**
+ * Calls the {@link togglePhysicsSettings} function.
  * @type {Button}
  */
 let physicsSettingsButton;
 
 /**
+ * Calls the {@link resetPhysicsSettings} function.
  * @type {Button}
  */
 let defaultSettingsButton;
 
 /**
+ * Stores references to all {@link Button}s which are always visible.
  * @type [Button]
  */
 let alwaysVisibleButtons;
@@ -37,37 +38,51 @@ let alwaysVisibleButtons;
 /* sliders */
 
 /**
+ * Calls the {@link updateGravity} function.
  * @type {Slider}
  */
 let gravitySlider;
 
 /**
+ * Calls the {@link updateAirDensity} function.
  * @type {Slider}
  */
 let airDensitySlider;
 
 /**
+ * Calls the {@link updateBallDiameter} function.
  * @type {Slider}
  */
 let diameterSlider;
 
 /**
+ * Calls the {@link updateBallMass} function.
  * @type {Slider}
  */
 let massSlider;
 
 /**
+ * Calls the {@link rollResistanceSlider} function.
  * @type {Slider}
  */
 let rollResistanceSlider;
 
 /**
+ * Stores references to all {@link Slider}s related to the physics settings.
+ *
  * @type [Slider]
  */
 let physicsSettingsSliders;
 
 /**
- * Initializes all the UI's buttons and sliders.
+ * Determines if the {@link physicsSettingsSliders} are shown.
+ *
+ * @type {boolean}
+ */
+let showPhysicsSettings = false;
+
+/**
+ * Initializes all the UI's {@link Button}s and {@link Slider}s.
  */
 function initializeUi() {
     // always visible buttons
@@ -122,7 +137,7 @@ function initializeUi() {
 }
 
 /**
- * Updates all button's and slider's text and positions.
+ * Updates all {@link Button}'s and {@link Slider}'s texts and positions.
  *
  * The positions are updated based on the canvas's current size.
  *
@@ -178,14 +193,15 @@ function updateUi(delta) {
 }
 
 /**
- * Toggles the visibility of the physics settings.
+ * Toggles the visibility of the physics settings by toggling {@link showPhysicsSettings}.
  */
 function togglePhysicsSettings() {
     showPhysicsSettings = !showPhysicsSettings;
 }
 
 /**
- * Sets all physics settings sliders indicators to their default positions.
+ * Sets all physics settings slider's indicators to their default positions.
+ * @see physicsSettingsSliders
  */
 function resetPhysicsSettings() {
     gravitySlider.setIndicator(0.5);
@@ -196,7 +212,7 @@ function resetPhysicsSettings() {
 }
 
 /**
- * Draws all text, buttons and sliders of the UI.
+ * Draws all text, {@link Button}s and {@link Slider}s of the UI.
  */
 function drawUi() {
     drawUiText();
@@ -215,7 +231,7 @@ function drawUi() {
 }
 
 /**
- * Calls all button and slider press methods.
+ * Calls all {@link Button} and {@link Slider} press methods.
  *
  * @see Button.mousePressed
  * @see Slider.mousePressed
@@ -235,7 +251,7 @@ function PressUi() {
 }
 
 /**
- * Calls all button and slider release methods.
+ * Calls all {@link Button} and {@link Slider} release methods.
  *
  * @see Button.mouseReleased
  * @see Slider.mouseReleased

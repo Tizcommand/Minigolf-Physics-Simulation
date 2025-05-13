@@ -1,22 +1,61 @@
+/**
+ * Provides variables and a function for drawing tutorial instructions to the canvas.
+ * @author Tizian Kirchner
+ */
+
+/**
+ * While the {@link tutorial} is in this state,
+ * the user is instructed on how to launch the {@link ball} off the {@link catapult}.
+ *
+ * @type {number}
+ */
 const TUTORIAL_START = 0;
+
+/**
+ * While the {@link tutorial} is in this state,
+ * the {@link updateTutorial} function waits for {@link ball} to come to a stop.
+ *
+ * @type {number}
+ */
 const TUTORIAL_WAIT_BUTTON = 1;
+
+/**
+ * While the {@link tutorial} is in this state,
+ * the user is instructed on how to use the {@link newButton} and {@link resetButton} buttons.
+ *
+ * @type {number}
+ */
 const TUTORIAL_BUTTON = 2;
+
+/**
+ * While the {@link tutorial} is in this state,
+ * the user is instructed on how the wind works.
+ *
+ * @type {number}
+ */
 const TUTORIAL_WIND = 3;
+
+/**
+ * The {@link tutorial} set to this state when it has ended.
+ *
+ * @type {number}
+ */
 const TUTORIAL_END = 4;
 
 /**
  * The current state of the tutorial.
  *
- * The possible states of the tutorial are declared above this variable's declaration.
+ * Has to be either {@link TUTORIAL_START}, {@link TUTORIAL_WAIT_BUTTON}, {@link TUTORIAL_BUTTON},
+ * {@link TUTORIAL_WIND} or {@link TUTORIAL_END}.
  *
  * @type {number}
  */
 let tutorial = TUTORIAL_START;
 
 /**
- * How many seconds the ball's velocity has been below 0.05m/s.
+ * How many seconds the {@link ball}'s velocity has been below 0.05 m/s.
  *
- * Only updated during the TUTORIAL_WAIT_BUTTON state.
+ * Only updated during the {@link TUTORIAL_WAIT_BUTTON} state.
  *
  * @type {number}
  */
@@ -27,8 +66,7 @@ let ballLowSpeedTime = 0;
  *
  * What text and animated arrows are drawn depends on the current state of the tutorial.
  *
- * @param delta
- * How many seconds passed between the current and the last frame.
+ * @param delta How many seconds passed between the current and the last frame.
  *
  * @see tutorial
  */

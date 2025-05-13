@@ -1,35 +1,39 @@
 /**
- * Provides functions for printing information about the balls physics interactions.
+ * Provides functions for printing information about the {@link ball}'s physics interactions.
+ *
+ * @author Tizian Kirchner
  */
 
 /**
  * Prints information about a collision to the console.
  *
  * @param collisionSegment {TerrainSegment}
- * The Segment the ball collided with.
+ * The {@link TerrainSegment} the {@link ball} collided with.
  *
  * @param segmentNormal {p5.Vector}
- * The normal of the collision segment.
+ * The normal of the collisionSegment.
  *
  * @param collisionDistance {number}
- * How many meters the ball had moved into the terrain.
+ * How many meters the {@link ball} had moved into the terrain.
  *
  * @param delta {number}
  * How many seconds passed between the current and the last frame.
  *
  * @param correctionDelta {number}
- * How many seconds of the balls movement were reversed to move it out of the terrain, if the correction type is
- * "velocity".
+ * How many seconds of the {@link ball}'s movement were reversed to move it out of the terrain
+ * if the correction type is "velocity".
  *
  * @param correctionDeltaSum {number}
- * How many seconds of the balls movement will be simulated in this frame, after the has been moved out of the terrain.
+ * How many seconds of the {@link ball}'s movement will be simulated in this frame,
+ * after the ball has been moved out of the terrain.
  *
  * @param correctionType {String}
- * Contains either the string "Velocity" or "Normal" depending on whether the ball was moved out of the terrain by
- * reversing the balls movement or using the collision segment's normal and the collision distance.
+ * Contains either the string "Velocity" or "Normal"
+ * depending on whether the {@link ball} was moved out of the terrain by reversing the ball's movement or
+ * using the collisionSegment's normal and the collision distance.
  *
  * @param correctionVector {p5.Vector}
- * The movement vector that was used to move the ball out of the terrain.
+ * The movement {@link Vector} that was used to move the ball out of the terrain.
  *
  * @see Ball.moveOutOfTerrain
  */
@@ -49,16 +53,16 @@ function logCollision(
 }
 
 /**
- * Prints information about a reflection of the ball, off the terrain, in the air.
+ * Prints information about a reflection of the {@link ball}, off the terrain, in the air.
  *
  * @param oldVelocity {p5.Vector}
- * The ball's velocity before the reflection.
+ * The {@link ball}'s velocity before the reflection.
  *
  * @param collisionObject {TerrainSegment | TerrainCorner}
- * The terrain object the ball was reflected off.
+ * The terrain object the {@link ball} was reflected off.
  *
  * @param collisionNormal {p5.Vector}
- * The normal of the collision object.
+ * The normal of the collisionObject.
  *
  * @see Ball.reflectInAir
  */
@@ -73,17 +77,17 @@ function logAirReflection(
 }
 
 /**
- * Prints information about a reflection of the ball, off the terrain, on the ground.
+ * Prints information about a reflection of the {@link ball}, off the terrain, on the ground.
  *
  * @param oldVelocity {p5.Vector}
- * The ball's velocity before the reflection.
+ * The {@link ball}'s velocity before the reflection.
  *
  * @param collisionObject {TerrainSegment | TerrainCorner}
- * The terrain object the ball was reflected off.
+ * The terrain object the {@link ball} was reflected off.
  *
  * @param groundSegmentDirection {p5.Vector}
- * The vector of the terrain segment the ball is rolling on, going from the segment's rightmost point to its leftmost
- * point.
+ * The {@link Vector} of the {@link TerrainSegment} the ball is rolling on,
+ * going from the segment's rightmost point to its leftmost point.
  *
  * @see Ball.reflectOnGround
  */
@@ -98,13 +102,13 @@ function logGroundReflection(
 }
 
 /**
- * Prints information about the ball falling off a terrain segment.
+ * Prints information about the {@link ball} falling off a {@link TerrainSegment}.
  *
  * @param oldVelocity
- * The balls velocity before falling off the segment.
+ * The {@link ball}'s velocity before falling off the {@link TerrainSegment}.
  *
  * @param fallSegment
- * The segment the ball has fallen off.
+ * The {@link TerrainSegment} the {@link ball} has fallen off.
  *
  * @see Ball.fallOffGround
  */

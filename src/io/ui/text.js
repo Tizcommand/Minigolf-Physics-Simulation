@@ -1,9 +1,10 @@
 /**
- * Provides functions and building strings and drawing them to the screen
+ * Provides functions for building strings and drawing them to the screen.
+ * @author Tizian Kirchner
  */
 
 /**
- * How many frames are being drawn to the canvas per second.
+ * Stores how many frames are being drawn to the canvas per second.
  *
  * Shorthand for "frames per second".
  *
@@ -12,26 +13,26 @@
 let fps = 0;
 
 /**
- * Used for counting the number frames drawn to the canvas in the current second.
+ * Used for counting the number of frames drawn to the canvas in the current second.
  *
  * @type {number}
  */
 let frameCounter = 0;
 
 /**
- * Used by the updateFPS function to check, when 1 second has passed.
+ * Used by the {@link updateFPS} function to check when 1 second has passed.
  *
  * @type {number}
- * @see updateFPS
  */
 let fpsRefreshTimer = 0;
 
 /**
  * @returns {string}
- * A string containing information about the current fps, wind speed and tries.
- * Adds the golf ball's speed and position to the string when debug mode is activated.
+ * A string containing information about the current {@link fps}, wind speed and {@link tries}.
+ * Adds the {@link ball}'s velocity and position to the string when {@link DEBUG} mode is activated.
  *
- * @see DEBUG
+ * @see windVelocity
+ * @see successfulTries
  */
 function getInfoText() {
     let infoText = (
@@ -49,12 +50,9 @@ function getInfoText() {
 }
 
 /**
- * Updates the fps, frameCounter and fpsRefreshTimer variables.
+ * Updates the {@link fps}, {@link frameCounter} and {@link fpsRefreshTimer} variables.
  *
  * @param delta {number} How many seconds passed between the current and the last frame.
- * @see fps
- * @see frameCounter
- * @see fpsRefreshTimer
  */
 function updateFPS(delta) {
     frameCounter++;
@@ -70,30 +68,29 @@ function updateFPS(delta) {
 /**
  * Draws a string as text to the canvas.
  *
- * The position of the text's anchor is specified via the textAlign function.
+ * The position of the text's anchor is specified via the {@link textAlign} function.
  *
  * @param str {string}
- * The string to draw to the canvas.
+ * Determines the string to draw to the canvas.
  *
  * @param x {number}
- * The x position of the text's anchor.
+ * Determines the x position of the text's anchor.
  *
  * @param y {number}
- * The y position of the text's anchor.
+ * Determines the y position of the text's anchor.
  *
  * @param color {string}
- * The color of the text in HTML notation.
+ * Determines the color of the text in HTML notation.
  *
  * @param size {number}
- * The size of the text in meters.
+ * Determines the size of the text in meters.
  *
  * @param [maxW] {number}
- * The maximum width of the text. When the text reaches this width, a line break is applied.
+ * Determines the maximum width of the text. When the text reaches this width, a line break is applied.
  *
  * @param [maxH] {number}
- * The maximum height of the text. Text which reaches beyond this height is not visible.
+ * Determines the maximum height of the text. Text which reaches beyond this height is not visible.
  *
- * @see textAlign
  * @see canvasScale
  */
 function drawString(
@@ -130,11 +127,11 @@ function drawUiText() {
 }
 
 /**
- * @param vector {p5.Vector}
- * The vector to convert to a string.
+ * @param vector {Vector}
+ * The {@link Vector} to convert to a string.
  *
  * @returns {string}
- * The vector's x and y coordinate in a short string.
+ * The {@link Vector}'s x and y components in a short string.
  */
 function vectorToShortString(vector) {
     return "(" + vector.x + "; " + vector.y + ")";
@@ -142,10 +139,11 @@ function vectorToShortString(vector) {
 
 /**
  * @param vector {p5.Vector}
- * The vector to convert to a string.
+ * The {@link Vector} to convert to a string.
  *
  * @returns {string}
- * The vector's x and y coordinate in a short string, showing only two decimal places for the x and y coordinates.
+ * The {@link Vector}'s x and y components in a short string,
+ * showing only two decimal places for the x and y coordinates.
  */
 function vectorToFixedString(vector) {
     return "(" + vector.x.toFixed(2) + "; " + vector.y.toFixed(2) + ")";

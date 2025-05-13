@@ -1,9 +1,10 @@
 /**
  * Provides functions drawing arrows swaying towards and away from the direction they are pointing at.
+ * @author Tizian Kirchner
  */
 
 /**
- * Determines what all the arrows current positions in the swaying animation are.
+ * Determines what every arrow's current position in the swaying animation is.
  *
  * At values 0 and 1 the arrows are at their starting position.
  * At value 0.5 the arrow has moved furthest into the direction it is pointing at.
@@ -15,12 +16,12 @@
 let arrowAnimationState = 0;
 
 /**
- * Updates the value of the arrowAnimationState variable.
+ * Updates the value of the {@link arrowAnimationState} variable.
  *
- * The value of arrowAnimationState is always kept between 0 and 2.
+ * The value of {@link arrowAnimationState} is always kept between 0 and 2.
  *
  * @param {number} delta
- * By how many seconds the animation is advanced. After 2 seconds all arrows will have swayed forward and back once.
+ * By how many seconds the animation is advanced. After 2 seconds all arrows will have swayed, forward and back, once.
  */
 function updateArrows(delta) {
     arrowAnimationState += delta;
@@ -33,22 +34,22 @@ function updateArrows(delta) {
 /**
  * Draws an animated arrow swaying towards and away from the direction it is pointing at.
  *
- * The position of the arrow's anchor is specified via the textAlign function.
+ * The position of the arrow's anchor is specified via the {@link textAlign} function.
  *
  * @param {number} x
- * The x position of the arrow's anchor.
+ * Determines the x position of the arrow's anchor.
  *
  * @param {number} y
- * The y position of the arrow's anchor.
+ * Determines the y position of the arrow's anchor.
  *
  * @param {string} color
- * The color of the arrow in HTML notation.
+ * Determines the color of the arrow in HTML notation.
  *
  * @param {number} size
- * The size of the arrow in meters.
+ * Determines the size of the arrow in meters.
  *
  * @param {number} direction
- * The direction the arrow points towards. Has to be one of the direction constants declared in canvas.js.
+ * Determines the direction the arrow points towards. Has to be one of the direction constants declared in canvas.js.
  *
  * @see textAlign
  * @see canvasScale

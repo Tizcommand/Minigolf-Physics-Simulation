@@ -1,49 +1,180 @@
 /**
- * Circle which can bounce off terrain, roll on the ground and react to wind.
+ * {@link Circle} which can bounce off terrain, roll on the ground, and react to wind.
+ *
+ * @author Tizian Kirchner
  */
 class Ball {
+    /* constructor dependent fields */
+
     /**
-     * Returns a new ball object.
+     * The {@link Circle} which makes up this {@link Ball}'s body.
+     *
+     * @type {Circle}
+     */
+    body = null;
+
+    /**
+     * Higher mass means this {@link Ball} is less affected by the spring and the wind,
+     * but more affected by {@link gravity}.
+     *
+     * @type {number}
+     */
+    mass = 0;
+
+    /**
+     * The higher this coefficient, the faster this {@link Ball} comes to a stop when rolling on the ground.
+     *
+     * @type {number}
+     */
+    rollResistanceCoefficient = 0;
+
+    /**
+     * This {@link Ball}'s drag divided by its mass. This value is used to calculate by how many m/s this ball is
+     * speeded up by the air.
+     *
+     * @type {number}
+     */
+    dm = 0;
+
+    /* ground-related fields */
+
+    /**
+     * The {@link TerrainSegment} on which this {@link Ball} is rolling.
+     *
+     * If this field is set to null, this {@link Ball} is currently flying in the air.
+     *
+     * @type {TerrainSegment}
+     */
+    groundSegment = null;
+
+    /**
+     * The {@link TerrainPolygon} to which the {@link groundSegment} belongs.
+     *
+     * If this field is set to null, this {@link Ball} is currently flying in the air.
+     *
+     * @type {TerrainPolygon}
+     */
+    groundTerrain = null;
+
+    /* velocity-related fields */
+
+    /**
+     * Determines how fast this {@link Ball} is moving in which direction.
+     *
+     * @type {p5.Vector}
+     */
+    velocity = createVector(0, 0);
+
+    /**
+     * Determines how much this {@link Ball} is being speeded up through the air and {@link gravity}.
+     *
+     * @type {p5.Vector}
+     */
+    airAcceleration = createVector(0, 0);
+
+    /**
+     * Determines how much this {@link Ball} is being speeded up through the {@link groundSegment} it is rolling on.
+     *
+     * @type {p5.Vector}
+     */
+    segmentAcceleration = createVector(0, 0);
+
+    /* collision-related fields */
+
+    /**
+     * Determines if this {@link Ball} is currently colling with something.
+     *
+     * @type {boolean}
+     */
+    collision = false;
+
+    /**
+     * Determines if this {@link Ball} needs to be reflected off terrain.
+     *
+     * @type {boolean}
+     */
+    collided = false;
+
+    /**
+     * The {@link TerrainPolygon} to which the {@link collisionSegment} belongs.
+     *
+     * If this field is set to null, this {@link Ball} is not colliding with anything.
+     *
+     * @type {TerrainPolygon}
+     */
+    collisionTerrain = null;
+
+    /**
+     * The {@link TerrainSegment} this {@link Ball} is currently colliding with.
+     *
+     * If this field is set to null, this {@link Ball} is not colliding with anything.
+     *
+     * @type {TerrainSegment}
+     */
+    collisionSegment = null;
+
+    /**
+     * The normal of the {@link collisionSegment} this {@link Ball} is currently colliding with.
+     *
+     * If this field is set to null, this {@link Ball} is not colliding with anything.
+     *
+     * @type {p5.Vector}
+     */
+    collisionSegmentNormal = null;
+
+    /**
+     * Determines by how many seconds this {@link Ball}'s movement needs to be corrected.
+     *
+     * @type {number}
+     */
+    correctionDeltaSum = 0;
+
+    /**
+     * Determines how often the loop of the {@link simulate} method has been executed.
+     *
+     * @type {number}
+     */
+    loopCounter = 0;
+
+    /**
+     * Determines how many meters this {@link Ball} has moved into the terrain object it collided with the last time the
+     * {@link moveOutOfTerrain} method was called.
+     *
+     * @type {number}
+     */
+    oldCollisionDistance = Infinity;
+
+    /**
+     * Returns a new {@link Ball} object.
      *
      * @param body {Circle}
-     * The circle which makes up the ball's body.
+     * See {@link Ball.body}.
      *
      * @param mass {number}
-     * Higher mass means the ball is less affected by the spring and the wind, but more affected by gravity.
+     * See {@link Ball.mass}.
      *
      * @param rollResistanceCoefficient {number}
-     * The higher this coefficient, the faster the ball comes to a stop when rolling on the ground.
+     * See {@link Ball.rollResistanceCoefficient}.
      */
     constructor(body, mass, rollResistanceCoefficient) {
-        // determined by parameters
         this.body = body;
         this.mass = mass;
         this.rollResistanceCoefficient = rollResistanceCoefficient;
-        this.dm = this.getDM();
-
-        // not updated each frame
-        this.groundSegment = null;
-        this.groundTerrain = null;
-
-        // updated each frame
-        this.velocity = createVector(0, 0);
-        this.airAcceleration = createVector(0, 0);
-        this.segmentAcceleration = createVector(0, 0);
-        this.resetCollisionInformation();
+        this.recalculateDM();
     }
 
     /**
-     * Bounces this ball off terrain, rolls it on the ground and affects it through wind.
+     * Bounces this {@link Ball} off terrain, rolls it on the ground, and affects it through wind.
      *
      * @param delta {number}
-     * For how many seconds to simulate this ball.
+     * For how many seconds to simulate this {@link Ball}.
      */
     simulate(delta) {
         this.addAcceleration(delta);
         this.resetCollisionInformation();
 
         do {
-            // check if error occurred
+            // Check if an error occurred.
             if(
                 isNaN(this.velocity.x) || isNaN(this.velocity.y) ||
                 this.velocity.x === Infinity || this.velocity.y === Infinity ||
@@ -53,23 +184,23 @@ class Ball {
                 return;
             }
 
-            // check if the ball collided
+            // Check if this Ball collided with something.
             let collisionInfo = this.getTerrainArrayCollisionInfo();
 
             if (collisionInfo.collisionDistance !== 0) {
                 this.moveOutOfTerrain(collisionInfo, delta);
             } else {
-                if (this.collided) { // Check if ball should be reflected.
-                    // Check if the ball collided with corner or segment.
+                if (this.collided) { // Check if this Ball should be reflected.
+                    // Check if this Ball collided with a corner or a segment.
                     let collisionObjectAndNormal = this.getCollisionObjectAndNormal();
                     let collisionObject = collisionObjectAndNormal.collisionObject;
                     let collisionNormal = collisionObjectAndNormal.collisionNormal;
 
-                    if (this.groundSegment == null) { // Check if ball should be reflected in the air.
+                    if (this.groundSegment == null) { // Check if this Ball should be reflected in the air.
                         let oldVelocity = this.velocity.copy();
                         this.reflectInAir(collisionObject, collisionNormal, delta);
                         if(DEBUG) logAirReflection(oldVelocity, collisionObject, collisionNormal);
-                    } else { // Reflect the ball on the ground.
+                    } else { // Reflect this Ball on the ground.
                         let oldVelocity = this.velocity.copy();
                         let groundSegmentDir = this.groundSegment.direction;
                         this.reflectOnGround(collisionObject, this.segmentAcceleration, delta);
@@ -79,7 +210,7 @@ class Ball {
                     this.collided = false;
                     delta = this.correctionDeltaSum;
                 } else {
-                    if(this.isOffGround()) { // Check if this ball should fall off the ground.
+                    if(this.isOffGround()) { // Check if this Ball should fall off the ground.
                         let oldVelocity = this.velocity.copy();
                         let fallSegment = this.groundSegment;
                         delta = this.fallOffGround(delta);
@@ -99,7 +230,7 @@ class Ball {
     }
 
     /**
-     * Resets all collision related information stored by this ball.
+     * Resets all collision-related fields stored by this {@link Ball}.
      */
     resetCollisionInformation() {
         this.collision = false;
@@ -115,12 +246,12 @@ class Ball {
     }
 
     /**
-     * Speeds up this ball.
+     * Speeds up this {@link Ball}.
      *
-     * Depending on whether this ball is in the air or on the ground, it will be speeded up differently.
+     * Depending on whether this {@link Ball} is in the air or on the ground, it will be speeded up differently.
      *
      * @param delta {number}
-     * For how many seconds to speed up this ball.
+     * For how many seconds to speed up this {@link Ball}.
      */
     addAcceleration(delta) {
         this.airAcceleration = this.getAirAcceleration(delta);
@@ -142,8 +273,8 @@ class Ball {
     }
 
     /**
-     * Moves this ball out of the terrain it collided with and stores various information about the collision that
-     * occurred.
+     * Moves this {@link Ball} out of the terrain it collided with and
+     * stores various information about the collision that occurred.
      *
      * @param collisionInfo {{
      *  collisionTerrain: TerrainPolygon, collisionSegment: TerrainSegment, collisionSegmentNormal: p5.Vector,
@@ -151,21 +282,22 @@ class Ball {
      * }}
      * Various information about a collision.
      *
-     * The collision terrain is the terrain object this ball is colling with.
+     * The collision terrain is the {@link TerrainPolygon} this ball is colling with.
      *
-     * The collision segment is the segment of the terrain object this ball is colliding with.
+     * The collision segment is the {@link TerrainSegment} of the collisionTerrain this {@link Ball} is colliding with.
      *
-     * The collision segment normal is the normal of the segment the ball is colliding with.
+     * The collision segment normal is the normal of the collisionSegment this {@link Ball} is colliding with.
      *
-     * The collision distance describes how many meters this ball has moved into the terrain object.
+     * The collision distance describes how many meters this ball has moved into the collisionTerrain.
      *
      * The correction delta describes how many seconds of time have to be reversed to undo the collision.
      *
      * @param delta
-     * How many seconds passed between the current and the last frame.
+     * For how many seconds the current iteration of the {@link simulate} method's loop
+     * is simulating this {@link Ball}.
      */
     moveOutOfTerrain(collisionInfo, delta) {
-        // store collision information
+        // Store collision information.
         this.collision = true;
         this.collided = true;
 
@@ -186,7 +318,7 @@ class Ball {
             this.correctionDeltaSum = delta;
         }
 
-        // correct the ball's position
+        // Correct this Ball's position.
         let correctionVector;
         let correctionType;
 
@@ -194,12 +326,12 @@ class Ball {
             (this.groundSegment != null && this.collisionSegment === this.groundSegment) ||
             this.oldCollisionDistance < collisionDistance
         ) {
-            // Fallback that is used if this ball was pushed further into the terrain, the last time this method was
+            // Fallback that is used if this Ball was pushed further into the terrain, the last time this method was
             // called. Uses the collision segment's normal and the collision distance to correct the ball's position.
             correctionVector = p5.Vector.mult(this.collisionSegment.normal, collisionDistance);
             correctionType = "Normal";
         } else {
-            // default correction procedure, reversing some of the balls movement
+            // Default correction procedure. Reverses some of this Ball's movement.
             correctionVector = p5.Vector.mult(this.velocity, -correctionDelta);
             correctionType = "Velocity";
         }
@@ -215,43 +347,45 @@ class Ball {
     }
 
     /**
-     * Reflects this ball off terrain if while it is in the air.
+     * Reflects this {@link Ball} off terrain while it is in the air.
      *
-     * Starts to let this ball rolling on the ground, if it collided with a terrain segment, and the balls velocity
-     * after the reflection, along the terrain segment's normal, is smaller than the BOUNCING_THRESHOLD constant.
-     * The collision segment's normal must be at least slightly pointing upwards for the ball to start rolling.
+     * Starts to let this {@link Ball} rolling on the ground if it collided with a {@link TerrainSegment},
+     * and this {@link Ball}'s {@link velocity} after the reflection, along the {@link TerrainSegment}'s normal,
+     * is smaller than the {@link BOUNCING_THRESHOLD} constant.
+     * The collision segment's normal must be at least slightly pointing upwards for this {@link Ball} to start rolling.
      *
      * @param {TerrainSegment | TerrainCorner} collisionObject
-     * The object this ball collided with.
+     * The terrain object this ball collided with.
      *
      * @param {p5.Vector} collisionNormal
-     * The normal of the collision object.
+     * The normal of the collisionObject.
      *
      * @param {number} delta
-     * How many seconds passed between the current and the last frame.
+     * For how many seconds the current iteration of the {@link simulate} method's loop
+     * is simulating this {@link Ball}.
      *
      * @see BOUNCING_THERSHOLD
      */
     reflectInAir(collisionObject, collisionNormal, delta) {
-        // subtract approximate superfluous air acceleration
+        // Subtract approximate superfluous air acceleration.
         this.velocity.sub(this.airAcceleration.copy().mult(this.correctionDeltaSum / delta));
 
-        // check if the ball is still moving
+        // Check if this Ball is still moving.
         let ballNormalVelocity = 0;
 
         if(this.velocity.mag() > 0) {
-            // reflect ball
+            // Reflect this Ball.
             let normalVelocityAngle = collisionNormal.angleBetween(this.velocity);
             this.velocity.rotate(-normalVelocityAngle * 2);
             this.velocity.mult(-1);
 
-            // decrease ball normal velocity by 20%
+            // Decrease this Ball's velocity along the collisionObject's normal by 20%.
             let normalAngle = atan2(collisionNormal.y, collisionNormal.x);
             let velocityAngle = atan2(this.velocity.y, this.velocity.x);
             ballNormalVelocity = this.velocity.mag() * cos(normalAngle - velocityAngle);
             this.velocity.sub(p5.Vector.mult(collisionNormal, ballNormalVelocity * 0.2));
 
-            // check if the ball starts rolling
+            // Check if this Ball starts rolling.
             velocityAngle = atan2(this.velocity.y, this.velocity.x);
             ballNormalVelocity = this.velocity.mag() * cos(normalAngle - velocityAngle);
         }
@@ -261,33 +395,34 @@ class Ball {
             collisionObject.type === TERRAIN_SEGMENT &&
             collisionObject.direction.x < 0
         ) {
-            // set the ball to start rolling
+            // Set this Ball to start rolling.
             this.groundTerrain = this.collisionTerrain;
             this.groundSegment = collisionObject;
             let segmentAcc = createVector(0, 0);
             this.reflectOnGround(collisionObject, segmentAcc, delta);
         } else {
-            // add corrected air acceleration
+            // Add corrected air acceleration.
             this.airAcceleration = this.getAirAcceleration(this.correctionDeltaSum);
             let segmentVertical = collisionObject.type === TERRAIN_SEGMENT && collisionObject.direction.x === 0;
             this.addReflectionAcceleration(this.airAcceleration, segmentVertical);
 
-            // position ball
+            // Position this Ball.
             this.body.position.add(p5.Vector.mult(this.velocity, this.correctionDeltaSum));
         }
     }
 
     /**
-     * Reflects this ball off terrain while it is rolling on the ground.
+     * Reflects this {@link Ball} off terrain while it is rolling on the ground.
      *
      * @param {TerrainSegment | TerrainCorner} collisionObject
-     * The object this ball collided with.
+     * The object this {@link Ball} collided with.
      *
      * @param {p5.Vector} segmentAcc
-     * How much this ball was speeded up horizontally and vertically between the current and the last frame.
+     * How much this {@link Ball} was speeded up horizontally and vertically between the current and the last frame.
      *
      * @param {number} delta
-     * How many seconds passed between the current and the last frame.
+     * For how many seconds the current iteration of the {@link simulate} method's loop
+     * is simulating this {@link Ball}.
      */
     reflectOnGround(collisionObject, segmentAcc, delta) {
         // subtract approximate superfluous segment acceleration
@@ -333,16 +468,14 @@ class Ball {
     }
 
     /**
-     * Returns if this ball has left the ground.
-     *
-     * @returns {boolean} If this ball has left the ground.
+     * @returns {boolean} If this {@link Ball} has left the ground.
      */
     isOffGround() {
         if (this.groundSegment != null) {
             let corners = this.groundTerrain.corners;
             let testNormal = p5.Vector.mult(this.groundSegment.normal, COLLISION_THRESHOLD);
-            let ballTestPosition = this.body.position.copy().sub(testNormal);
-            let segmentCollisionDistance = this.getSegmentCollisionDistance(this.groundSegment, ballTestPosition);
+            let testPosition = this.body.position.copy().sub(testNormal);
+            let segmentCollisionDistance = this.getSegmentCollisionDistance(this.groundSegment, testPosition);
             let cornerOverwrite = false;
 
             if(segmentCollisionDistance > 0) for(let i = 0; i < corners.length; i++) {
@@ -364,10 +497,12 @@ class Ball {
      * If the ball rolled over the corner of a ledge, it is put onto the ledge and then let to fall off that corner.
      *
      * @param {number} delta
-     * How many seconds passed between the current and the last frame.
+     * For how many seconds the current iteration of the {@link simulate} method's loop
+     * is simulating this {@link Ball}.
      *
      * @returns {number}
-     * How many seconds passed between this ball arriving at the ledge's corner and this frame.
+     * How many seconds passed between this ball arriving at the top of the ledge's corner and the start time from which
+     * the current iteration of the {@link simulate} method's loop is simulating this {@link Ball}.
      */
     fallOffGround(delta) {
         // calculate ball segment horizontal distance
@@ -407,18 +542,21 @@ class Ball {
     }
 
     /**
-     * Speeds up this ball after it was reflected off terrain.
+     * Speeds up this {@link Ball} after it was reflected off terrain.
      *
-     * If this ball's horizontal/vertical velocity is smaller than the horizontal/vertical reflection acceleration,
-     * this ball will not be speeded up horizontal/vertical to prevent the ball from getting stuck in the terrain
+     * If this {@link Ball}'s horizontal/vertical {@link velocity} is smaller
+     * than the horizontal/vertical reflectionAcceleration,
+     * this {@link Ball} will not be speeded up horizontally/vertically
+     * to prevent this {@link Ball} from getting stuck in the terrain
      * trough floating point rounding errors.
      *
      * @param {p5.Vector} reflectionAcceleration
-     * How much this ball is speeded up horizontally and vertically.
+     * How much this {@link Ball} is speeded up horizontally and vertically.
      *
      * @param {boolean} segmentVertical
-     * If this ball is reflected through a completely vertical terrain segment. Allows vertical acceleration to be
-     * added even if the ball's vertical velocity is smaller than the vertical reflection acceleration.
+     * If this {@link Ball} is reflected through a completely vertical {@link TerrainSegment}.
+     * Allows vertical acceleration to be added even if this {@link Ball}'s vertical {@link velocity} is smaller
+     * than the vertical reflectionAcceleration.
      */
     addReflectionAcceleration(reflectionAcceleration, segmentVertical) {
         let xOk = abs(reflectionAcceleration.x) < abs(this.velocity.x);
@@ -436,11 +574,12 @@ class Ball {
     }
 
     /**
-     * Determines if this ball has collided with a terrain segment or corner and returns the corresponding object, and
-     * it's normal.
+     * Determines if this {@link Ball} has collided with a {@link TerrainSegment} or {@link TerrainCorner} and
+     * returns the corresponding object, and its normal.
      *
-     * @returns {{collisionObject: TerrainSegment | TerrainCorner, collisionNormal: p5.Vector}}
-     * The collision object, either a terrain segment or corner, and it's normal.
+     * @returns {{collisionObject: TerrainSegment | TerrainCorner, collisionNormal: Vector}}
+     * The collisionObject, either a {@link TerrainSegment} or {@link TerrainCorner},
+     * and the normal of the collisionObject.
      */
     getCollisionObjectAndNormal() {
         let collisionCorner = null;
@@ -474,8 +613,8 @@ class Ball {
     }
 
     /**
-     * Detects if this ball is colliding with one of the terrain objects in the terrain array and returns various
-     * information about the collision, if a collision occurred.
+     * Detects if this {@link Ball} is colliding with one of the {@link TerrainPolygon}s in the {@link terrainArray} and
+     * returns various information about the collision if a collision occurred.
      *
      * @returns {{
      *  collisionTerrain: TerrainPolygon, collisionSegment: TerrainSegment, collisionSegmentNormal: p5.Vector,
@@ -483,18 +622,19 @@ class Ball {
      * }}
      * Various information about a collision.
      *
-     * The collision terrain is the terrain object this ball is colling with.
+     * The collisionTerrain is the {@link TerrainPolygon} this {@link Ball} is colling with.
      *
-     * The collision segment is the segment of the terrain object this ball is colliding with.
+     * The collision segment is the {@link TerrainSegment} of the collisionTerrain
+     * this {@link Ball} is colliding with.
      *
-     * The collision segment normal is the normal of the segment the ball is colliding with.
+     * The collisionSegmentNormal is the normal of the {@link TerrainSegment} this {@link Ball} is colliding with.
      *
-     * The collision distance describes how many meters this ball has moved into the terrain object.
+     * The collisionDistance describes how many meters this {@link Ball} has moved into the {@link TerrainPolygon}.
      *
-     * The correction delta describes how many seconds have to be reversed to undo the collision.
+     * The correctionDelta describes how many seconds have to be reversed to undo the collision.
      *
-     * If no collision occurred, collision terrain, collision segment and collision segment normal will be null and
-     * minimum collision distance and correction delta will be 0.
+     * If no collision occurred, collisionTerrain, collisionSegment, and collisionSegmentNormal will be null and
+     * collisionDistance and correctionDelta will be 0.
      */
     getTerrainArrayCollisionInfo() {
         let collisionTerrain = null;
@@ -549,30 +689,31 @@ class Ball {
     }
 
     /**
-     * Detects if this ball is colliding with a specific terrain object and
+     * Detects if this {@link Ball} is colliding with a specific {@link TerrainPolygon} and
      * returns various information about the collision if a collision occurred.
      *
      * @param segments {[TerrainSegment]}
-     * The segments of the terrain object.
+     * The {@link TerrainSegment}s of the {@link TerrainPolygon}.
      *
      * @param segmentCollisionDistances {[number]}
-     * How many meters this ball has moved past the different terrain segments.
+     * How many meters this {@link Ball} has moved past the different {@link TerrainSegment}s.
      *
      * @param corners {[TerrainCorner]}
-     * The corners of the terrain object.
+     * The {@link TerrainCorner}s of the terrain {@link TerrainPolygon}.
      *
      * @returns {{
      *  collisionSegment: TerrainSegment, segmentNormal: p5.Vector, collisionDistance: number, correctionDelta: number
      * }}
      * Various information about a collision.
      *
-     * The collision segment is the segment of the terrain object this ball is colliding with.
+     * The collisionSegment is the {@link TerrainSegment} of the {@link TerrainPolygon}
+     * this {@link Ball} is colliding with.
      *
-     * The collision segment normal is the normal of the segment the ball is colliding with.
+     * The segmentNormal is the normal of the collisionSegment.
      *
-     * The collision distance describes how many meters this ball has moved into the terrain object.
+     * The collisionDistance stores how many meters this {@link Ball} has moved into the {@link TerrainPolygon}.
      *
-     * The correction delta describes how many seconds have to be reversed to undo the collision.
+     * The correctionDelta stores how many seconds have to be reversed to undo the collision.
      */
     getTerrainObjectCollisionInfo(
         segments, segmentCollisionDistances, corners
@@ -617,34 +758,34 @@ class Ball {
     }
 
     /**
-     * Returns how far this ball has moved into a given terrain segment.
+     * Returns how far this {@link Ball} has moved into a given {@link TerrainSegment}.
      *
-     * Note that this method only checks how much the square, surrounding this ball's body, has moved into the given
-     * terrain segment. Two conditions must be met to confirm that this ball is actually overlapping with the given
-     * terrain segment. The method getCornerOverwrite must return false for all corners of the terrain object the given
-     * terrain segment belongs to. Additionally, this method must return a distance bigger than 0.
-     *
-     * @see getCornerOverwrite
+     * Note that this method only checks how much the square, touching this {@link Ball}'s {@link body}'s topmost,
+     * bottommost, rightmost, and leftmost point, has moved into the given terrain segment. Two conditions must be
+     * met to confirm that this ball is actually overlapping with the given {@link TerrainSegment}.
+     * The method {@link getCornerOverwrite} must return false for all {@link TerrainCorner}s
+     * of the {@link TerrainPolygon} the given {@link TerrainSegment} belongs to. Additionally, this method must
+     * return a distance bigger than 0.
      *
      * @param {TerrainSegment} terrainSegment
-     * The terrain segment, for which this method is checking how far this ball has moved into it.
+     * The given {@link TerrainSegment} this {@link Ball} might have moved into.
      *
      * @param {p5.Vector} position
-     * The position this ball takes during the distance calculation.
+     * The position this {@link Ball} takes during the distance calculation.
      *
      * @returns {number}
-     * How far this ball has moved into the given terrain segment.
+     * How far this {@link Ball} has moved into the given {@link TerrainSegment}.
      */
     getSegmentCollisionDistance(terrainSegment, position) {
         let distance = terrainSegment.distance - position.dot(terrainSegment.normal);
 
         if(distance > -this.body.getRadius()) {
             let leftBorderDistance = (
-                terrainSegment.leftBorderDistance - position.dot(terrainSegment.leftBorderNormal)
+                terrainSegment.endBorderDistance - position.dot(terrainSegment.endBorderNormal)
             );
 
             let rightBorderDistance = (
-                terrainSegment.rightBorderDistance - position.dot(terrainSegment.rightBorderNormal)
+                terrainSegment.startBorderDistance - position.dot(terrainSegment.startBorderNormal)
             );
 
             if(leftBorderDistance > -this.body.getRadius() && rightBorderDistance > -this.body.getRadius()) {
@@ -658,17 +799,20 @@ class Ball {
     }
 
     /**
-     * Returns true when this ball is on the side of a given corner, where this ball is guaranteed to be outside the
-     * terrain object the corner belongs to. Otherwise, this method returns false.
+     * Returns true when this {@link Ball} is on the side of a given {@link TerrainCorner}, where this {@link Ball} is
+     * guaranteed to be outside the {@link TerrainPolygon} the {@link TerrainCorner} belongs to.
+     * Otherwise, this method returns false.
      *
      * @param {TerrainCorner} corner
-     * The corner for which is tested, if the ball is guaranteed to be outside the terrain object the corner belongs to.
+     * The {@link TerrainCorner} that belongs to the {@link TerrainPolygon} for which is tested if this {@link Ball}
+     * is guaranteed to be outside it.
      *
      * @param {number} cornerBallCenterDistance
-     * How many meters are between the given corner and this ball's body's center.
+     * How many meters are between the given {@link TerrainCorner} and this {@link Ball}'s {@link body}'s center.
      *
      * @returns {boolean}
-     * If this ball is guaranteed to be outside the terrain object the given corner belongs to.
+     * If this {@link Ball} is guaranteed to be outside the {@link TerrainPolygon}
+     * the given {@link TerrainCorner} belongs to.
      */
     getCornerOverwrite(corner, cornerBallCenterDistance) {
         return cornerBallCenterDistance > this.body.getRadius() - COLLISION_THRESHOLD && (
@@ -683,17 +827,17 @@ class Ball {
     }
 
     /**
-     * Returns how by how many m/s this ball is speeded up, while rolling on the ground, within the given timeframe
-     * delta.
+     * Returns how by how many m/s this {@link Ball} is speeded up, while rolling on the ground,
+     * within the given duration of {@link delta}.
      *
      * @param {number} horizontalAirAcc
-     * By how many m/s this ball is speeded up horizontally, by the air, within delta's time frame.
+     * By how many m/s this {@link Ball} is speeded up horizontally, by the air, within {@link delta}'s time frame.
      *
      * @param {number} delta
-     * Within how many seconds this ball gets speeded up.
+     * Within how many seconds this {@link Ball} gets speeded up.
      *
      * @returns {p5.Vector}
-     * How many m/s this ball is speeded up horizontally and vertically.
+     * How many m/s this {@link Ball} is speeded up horizontally and vertically.
      */
     getSegmentAcceleration(horizontalAirAcc, delta) {
         let seg = this.groundSegment;
@@ -712,14 +856,14 @@ class Ball {
     }
 
     /**
-     * Returns how by how many m/s this ball is speeded up, while moving through the air, within the given timeframe
-     * delta.
+     * Returns how by how many m/s this {@link Ball} is speeded up, while moving through the air,
+     * within the given duration of {@link delta}.
      *
      * @param delta
      * Within how many seconds this ball gets speeded up.
      *
      * @returns {p5.Vector}
-     * How many m/s this ball is speeded up horizontally and vertically.
+     * How many m/s this {@link Ball} is speeded up horizontally and vertically.
      */
     getAirAcceleration(delta) {
         let windVDifference = p5.Vector.sub(this.velocity, windVelocity);
@@ -729,15 +873,12 @@ class Ball {
     }
 
     /**
-     * Returns this ball's drag divided by its mass. This value is used to calculate by how many m/s this ball is
-     * speeded up by the air.
-     *
-     * @returns {number} This ball's drag divided by its mass.
+     * Recalculates the value of this {@link Ball}'s {@link dm} field.
      */
-    getDM() {
+    recalculateDM() {
         let area = Math.PI * this.body.getRadius() * this.body.getRadius();
         let dragCoefficient = 0.47;
         let drag = (dragCoefficient * airDensity * area) / 2;
-        return drag / this.mass;
+        this.dm = drag / this.mass;
     }
 }

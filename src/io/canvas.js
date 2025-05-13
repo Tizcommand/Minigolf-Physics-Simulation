@@ -1,17 +1,20 @@
 /**
- * The central script of the simulation, mainly used for drawing its visuals to the browser window.
+ * The central script of the simulation, mainly used for issuing drawing of its visuals to the browser window.
  *
  * Provides functions for setting up the program and updating its objects, managing mouse input and converting between
  * cartesian coordinates and pixel coordinates.
  *
  * When an object is initialized, its size and coordinate are always expressed in meters and cartesian coordinates.
- * When an object is drawn, its position is converted from cartesian coordinates to pixel coordinates its size
- * converted from meters to pixels. This is done to make the objects drawn to the canvas scalable to different
- * window sizes.
+ * When an object is drawn, the simulation converts its position from cartesian coordinates to pixel coordinates.
+ * The size is converted from meters to pixels. This is done to make the objects drawn to the canvas
+ * scalable to different window sizes.
  *
- * A custom origin can be specified for the cartesian coordinate system, whereas the pixel coordinate system's
- * origin is always at top left. The cartesian coordinate system's coordinates increase towards the top right,
+ * A custom origin can be specified for the cartesian coordinate system,
+ * whereas the pixel coordinate system's origin is always in the top left corner of the canvas.
+ * The cartesian coordinate system's coordinates increase towards the top right,
  * whereas the pixel coordinate system's coordinates increase towards the bottom right.
+ *
+ * @author Tizian Kirchner
  */
 
 /* origin coordinates */
@@ -63,8 +66,8 @@ let canvasPH = window.innerHeight;
 /**
  * A scale that is applied to all visuals on the canvas.
  *
- * Used to horizontally fit all visuals into the browser window. Visuals will still disappear vertically, if the
- * browser window is too wide. If browser window is too tall, visuals will appear very small.
+ * Used to horizontally fit all visuals into the browser window. Visuals will still disappear vertically if the
+ * browser window is too wide. If the browser window is too tall, visuals will appear very small.
  *
  * @type {number}
  */
@@ -131,7 +134,7 @@ function setup() {
 /**
  * Draws the UI and the games visuals to the browser window.
  *
- * Is called once every frame. Calls function to update other objects of the program.
+ * Is called once every frame. Calls functions to update other objects of the program.
  */
 function draw() {									
 	/* setup */
@@ -204,7 +207,7 @@ function draw() {
 /* Mouse Input Functions */
 
 /**
- * Checks if UI elements or the ball have been pressed and takes according actions.
+ * Checks if UI elements or the ball have been pressed by the mouse cursor and takes according actions.
  */
 function mousePressed() {
 	PressUi();
@@ -212,7 +215,7 @@ function mousePressed() {
 }
 
 /**
- * Checks if UI elements or the ball have been released and takes according actions.
+ * Checks if UI elements or the ball have been released by the mouse cursor and takes according actions.
  */
 function mouseReleased() {
 	releaseUi();

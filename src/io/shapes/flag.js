@@ -1,26 +1,77 @@
 /**
- * Stores data about the game's flag and provides functions for initializing its dependencies and simulating its
- * reaction to wind.
+ * Stores data about the game's {@link flag} and provides functions for initializing its dependencies and
+ * simulating its reaction to wind.
+ *
+ * @author Tizian Kirchner
  */
-let flagpole;
+
+/**
+ * Stores the visualization of the flag at the minigolf hole as a {@link Triangle}.
+ * @type {Triangle}
+ */
 let flag;
+
+/**
+ * Stores the origin of the {@link flag} as a xy {@link Vector}.
+ * @type {Vector}
+ */
 let flagOrigin;
+
+/**
+ * Stores the angle at which the {@link flag} is turned through the wind.
+ * @type {number}
+ */
 let flagAngle = 0;
+
+/**
+ * Stores how much the {@link flag} is being swayed through the wind.
+ *
+ * This value is added to the {@link flagAngle} to determine the angle at which the flag is turned.
+ * In contrast to the {@link flagAngle}, which does not change unless the {@link windVelocity} changes,
+ * this value goes through small random changes.
+ * How rapid these changes are, is determined by the {@link flagSwayChange}.
+ *
+ * @type {number}
+ */
 let flagSway = 0;
+
+/**
+ * Determines the maximum absolute value of the {@link flagSway} variable.
+ * @type {number}
+ */
 let flagSwayMax = 0;
+
+/**
+ * Determines how rapidly the {@link flagSway} variable changes.
+ *
+ * The higher the {@link windVelocity}'s x component is, the higher this variable's value is.
+ *
+ * @type {number}
+ */
 let flagSwayChange = 0;
+
+/**
+ * Determines how much the {@link flag} is stretched through the wind.
+ * @type {number}
+ */
 let flagStretch = 0;
 
 /**
- * Initializes the flag's origin and pole.
+ * Stores the visualization of the {@link flag}'s flagpole.
+ * @type {Rectangle}
+ */
+let flagpole;
+
+/**
+ * Initializes the {@link flagOrigin} and {@link flagpole}.
  */
 function initializeFlag() {
-    flagpole = new Rectangle(2.00, 1.25, 0.05, 1.25, fgCl);
     flagOrigin = createVector(2.025, 1);
+    flagpole = new Rectangle(2.00, 1.25, 0.05, 1.25, fgCl);
 }
 
 /**
- * Simulates the flag swaying in the wind.
+ * Simulates the {@link flag} swaying in the wind.
  *
  * @param delta How many seconds passed between the current and the last frame.
  */
@@ -47,9 +98,7 @@ function updateFlag(delta) {
 }
 
 /**
- * Updates data used by the updateFlag function, using the wind's current speed and direction.
- *
- * @see updateFlag
+ * Updates variables, used by the {@link updateFlag} function, by using the {@link windVelocity}.
  */
 function applyWindToFlag() {
     if(windVelocity.x > 8.5) {

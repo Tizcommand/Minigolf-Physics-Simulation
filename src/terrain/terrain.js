@@ -1,48 +1,104 @@
 /**
- * Stores terrain visualizations and polygons and provides a function for terrain initialization, resetting and
- * drawing.
+ * Stores terrain visualizations and {@link TerrainPolygon}s and provides functions for terrain initialization,
+ * resetting and drawing.
+ *
+ * @author Tizian Kirchner
  */
 
-// terrain visualizations
-let wall;
-let obstacle;
+/* Slope */
 
+let slope;
 const slopeX = 0.00;
 const slopeY = 0.50;
 const slopeW = 1.00;
 const slopeH = 0.50;
-let slope;
 
-const tpGroundY = 0.00;
+let slopeTerrain;
+
+/* Ground */
+
 let lftGround;
 let rgtGround;
 let btmGround;
+const tpGroundY = 0.00;
 
-const catapultH = 0.50;
-const catapultW = 0.24;
-let catapultPosition;
-let catapult;
-
-// terrain shapes
-let terrainArray;
-let wallTerrain;
-let obstacleTerrain;
-let slopeTerrain;
 let lftGroundTerrain;
 let rgtGroundTerrain;
 let btmGroundTerrain;
 
-let catapultTerrainAdded = false;
+/* Catapult */
+
+/**
+ * A triangle to which's top corner a spring is attached.
+ *
+ * The spring is used to launch the {@link ball} from the catapult.
+ *
+ * @type {Triangle}
+ */
+let catapult;
+
+/**
+ * Stores the position of the catapult as a {@link Vector}.
+ *
+ * @type {Vector}
+ */
+let catapultPosition;
+
+/**
+ * Stores the height of the {@link catapult}.
+ *
+ * @type {number}
+ */
+const catapultH = 0.50;
+
+/**
+ * Stores the width of the {@link catapult}.
+ *
+ * @type {number}
+ */
+const catapultW = 0.24;
+
+/**
+ * Handles the collision between the {@link catapult} and the {@link ball}.
+ *
+ * @type {TerrainPolygon}
+ */
 let catapultTerrain;
 
 /**
- * Initializes all the simulation's terrain visualizations and polygons.
+ * Determines whether the {@link catapultTerrain} has been added to the {@link terrainArray}.
  *
- * All the polygons, except the catapult terrain, will be referenced in the terrain array. The catapult terrain is
- * added to the terrain array later, through the function simulatePhysics, to avoid collision between the golf ball
- * and the catapult during the golf ball's launch.
+ * @type {boolean}
+ */
+let catapultTerrainAdded = false;
+
+/* Wall */
+
+let wall;
+let wallTerrain;
+
+/* Obstacle */
+
+let obstacle;
+let obstacleTerrain;
+
+/* Terrain Array */
+
+/**
+ * Stores the {@link TerrainPolygon}s of the simulation.
  *
- * @see simulatePhysics
+ * @type {TerrainPolygon[]}
+ * @see initializeTerrain
+ */
+let terrainArray;
+
+/**
+ * Initializes all the simulation's terrain visualizations and {@link TerrainPolygon}s.
+ *
+ * All the {@link TerrainPolygon}s, except the {@link catapultTerrain},
+ * will be referenced through the {@link terrainArray}.
+ * The {@link catapultTerrain} is added to the {@link terrainArray} later, through the function {@link simulatePhysics},
+ * to avoid collision between the {@link ball} and the {@link catapultTerrain} during the {@link ball}'s launch.
  */
 function initializeTerrain() {
     // terrain visualization initialization
@@ -124,7 +180,8 @@ function initializeTerrain() {
 }
 
 /**
- * Removes the catapult terrain from the terrain array, if the catapult terrain has been added to the array.
+ * Removes the {@link catapultTerrain} from the {@link terrainArray}
+ * if the {@link catapultTerrain} has been added to the array.
  *
  * @see initializeTerrain
  * @see simulatePhysics
@@ -137,7 +194,7 @@ function resetTerrain() {
 }
 
 /**
- * Draws all terrain segments and corners of the terrain array.
+ * Draws all {@link TerrainSegment}s and {@link TerrainCorner}s of the {@link terrainArray}.
  */
 function drawTerrainColliders() {
     terrainArray.forEach(terrain => {

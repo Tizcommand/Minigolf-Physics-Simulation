@@ -1,18 +1,37 @@
 /**
  * A colored circle that can be drawn to the canvas.
+ * @author Tizian Kirchner
  */
 class Circle {
     /**
-     * Returns a new circle object.
+     * The x and y coordinates of this circle's center.
+     * @type {p5.Vector}
+     */
+    position;
+
+    /**
+     * How many meters wide and tall this circle is.
+     * @type {number}
+     */
+    diameter;
+
+    /**
+     * The color of this circle in HTML notation.
+     * @type {string}
+     */
+    color;
+
+    /**
+     * Constructs a new {@link Circle} object.
      *
      * @param position {p5.Vector}
-     * The x and y coordinates of the circle's center.
+     * See {@link Circle.position}.
      *
      * @param diameter {number}
-     * How many meters wide and tall the circle is.
+     * See {@link Circle.diameter}.
      *
      * @param color {string}
-     * The color of the circle in HTML notation.
+     * See {@link Circle.color}.
      */
     constructor(position, diameter, color) {
         this.position = position;
@@ -21,7 +40,7 @@ class Circle {
     }
 
     /**
-     * Draws this circle to the canvas.
+     * Draws this {@link Circle} to the canvas.
      */
     draw() {
         let x = transformCxToPx(this.position.x);
@@ -34,7 +53,7 @@ class Circle {
 
     /**
      * @returns {number}
-     * This circle's radius.
+     * This {@link Circle}'s radius.
      */
     getRadius() {
         return this.diameter / 2;
@@ -42,7 +61,7 @@ class Circle {
 
     /**
      * @returns {number}
-     * This circle's left border's x coordinate.
+     * This {@link Circle}'s left border's x coordinate.
      */
     getLeftX() {
         return this.position.x - this.getRadius();
@@ -50,7 +69,7 @@ class Circle {
 
     /**
      * @returns {number}
-     * This circle's right border's x coordinate.
+     * This {@link Circle}'s right border's x coordinate.
      */
     getRightX() {
         return this.position.x + this.getRadius();
@@ -58,7 +77,7 @@ class Circle {
 
     /**
      * @returns {number}
-     * This circle's top border's y coordinate.
+     * This {@link Circle}'s top border's y coordinate.
      */
     getTopY() {
         return this.position.y + this.getRadius();
@@ -66,7 +85,7 @@ class Circle {
 
     /**
      * @returns {number}
-     * This circle's bottom border's y coordinate.
+     * This {@link Circle}'s bottom border's y coordinate.
      */
     getBottomY() {
         return this.position.y - this.getRadius();
