@@ -7,5 +7,5 @@ The movement of the ball is simulated using realistic physics.
 You can try it out by either using [this link](https://raw.githack.com/Tizcommand/Minigolf-Physics-Simulation/main/src/index/index.html) or
 downloading the repository and using the index.html file with a browser of your choice.
 
-Thanks to Dr.-Ing. Volkmar Naumburger for teaching me the physics, mathematics and logic behind this project.
+Thanks go to my game physics teacher Dr.-Ing. Volkmar Naumburger for teaching me the physics, mathematics and logic behind this project.
 You can find his website on game physics [here](https://advanced-games-physics.goip.de/Inhalt.html).
