@@ -1,5 +1,5 @@
 # Minigolf Physics Simulation
-This minigolf physics simulation allows you to play minigolf by launching a ball of a spring, into a hole.
+This minigolf physics simulation allows you to play minigolf by launching a ball off a spring, into a hole.
 The movement of the ball is simulated using realistic physics.
 
 <img src="src/res/images/Screenshot.png" width="95%" alt="Screenshot of the ball flying through the air."/>
